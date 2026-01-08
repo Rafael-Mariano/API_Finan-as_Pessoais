@@ -31,5 +31,12 @@ namespace Finance.Api.Controllers
             _contas[id].Sacar(valor);
             return Ok(_contas[id].Saldo);
         }
+
+        [HttpPost("{id}/transferir/{destinoId}")]
+        public IActionResult Transferir(int id, int destinoId, decimal valor)
+        {
+            _contas[id].Transferir(_contas[destinoId], valor);
+            return Ok(new { SaldoOrigem = _contas[id].Saldo, SaldoDestino = _contas[destinoId] });
+        }
     }
 }
