@@ -2,26 +2,26 @@
 
 namespace Finance.Api.Domain
 {
-    public class ContaBancaria
+    public class ContaMovimento
     {
-        public string Titular { get; }
+        public string NomeContaMovimento { get; }
         public decimal Saldo { get; private set; }
         public List<Transacao> Historico { get; } = new List<Transacao>();
 
-        public ContaBancaria(string titular)
+        public ContaMovimento(string nomeConta)
         {
-            Titular = titular;
+            NomeContaMovimento = nomeConta;
             Saldo = 0m;
         }
 
-        public void Depositar(decimal valor)
+        public void Entrada(decimal valor)
         {
             Saldo += valor;
 
-            Historico.Add(new Transacao("Depósito de: " + valor, valor, DateTime.Now));
+            Historico.Add(new Transacao("Entrada de: " + valor, valor, DateTime.Now));
         }
 
-        public void Sacar(decimal valor)
+        public void Saida(decimal valor)
         {
             if (valor > Saldo)
             {
@@ -30,23 +30,26 @@ namespace Finance.Api.Domain
 
             Saldo -= valor;
 
-            Historico.Add(new Transacao("Saque de: " + valor, valor, DateTime.Now));
+            Historico.Add(new Transacao("Saída de R$" + valor, valor, DateTime.Now));
         }
 
-        public void Transferir(ContaBancaria contaDestino, decimal valor)
+        public void Transferir(ContaMovimento contaDestino, decimal valor)
         {
+            if (valor > Saldo)
+                throw new InvalidOperationException("Saldo insuficiente");
+
             Saldo -= valor;
 
             contaDestino.Saldo += valor;
 
             Historico.Add(new Transacao(
-                $"Transferência de R${valor} enviada para {contaDestino.Titular}.",
+                $"Transferência de R${valor} enviada para {contaDestino.NomeContaMovimento}.",
                 valor,
                 DateTime.Now
             ));
 
             contaDestino.Historico.Add(new Transacao(
-                $"Transferência de R${valor} recebida de {Titular}", 
+                $"Transferência de R${valor} recebida de {NomeContaMovimento}", 
                 valor, 
                 DateTime.Now
             ));

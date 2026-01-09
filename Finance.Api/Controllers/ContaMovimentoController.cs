@@ -5,30 +5,30 @@ namespace Finance.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ContaBancariaController : ControllerBase
+    public class ContaMovimentoController : ControllerBase
     {
-        private static readonly Dictionary<int, ContaBancaria> _contas = new();
+        private static readonly Dictionary<int, ContaMovimento> _contas = new();
         private static int _id = 1;
 
         [HttpPost]
-        public IActionResult CriarConta(string titular)
+        public IActionResult CriarConta(string nomeConta)
         {
-            var conta = new ContaBancaria(titular);
+            var conta = new ContaMovimento(nomeConta);
             _contas[_id] = conta;
-            return Ok(new { Id = _id++, conta.Titular, conta.Saldo });
+            return Ok(new { Id = _id++, conta.NomeContaMovimento, conta.Saldo });
         }
 
-        [HttpPost("{id}/depositar")]
-        public IActionResult Depositar(int id, decimal valor)
+        [HttpPost("{id}/entrada")]
+        public IActionResult Entrada(int id, decimal valor)
         {
-            _contas[id].Depositar(valor);
+            _contas[id].Entrada(valor);
             return Ok(_contas[id].Saldo);
         }
 
-        [HttpPost("{id}/sacar")]
+        [HttpPost("{id}/saida")]
         public IActionResult Sacar(int id, decimal valor)
         {
-            _contas[id].Sacar(valor);
+            _contas[id].Saida(valor);
             return Ok(_contas[id].Saldo);
         }
 
@@ -42,8 +42,8 @@ namespace Finance.Api.Controllers
         [HttpGet("{id}/saldo")]
         public IActionResult Saldo(int id)
         {
-            var extrato = _contas[id].Saldo;
-            return Ok(extrato);
+            var saldo = _contas[id].Saldo;
+            return Ok(saldo);
         }
     }
 }
