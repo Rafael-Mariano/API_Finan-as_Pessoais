@@ -51,5 +51,10 @@ namespace Finance.Api.Domain
                 DateTime.Now
             ));
         }
+
+        public decimal SaldoConta()
+        {
+            return Saldo;
+        }
     }
 }

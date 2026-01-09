@@ -127,5 +127,21 @@ namespace Finance.Api.Test.Domain
             Assert.Equal($"Transferência de R$200 recebida de Conta Origem", destino.Historico[0].Tipo);
             Assert.Equal(200m, destino.Historico[0].Valor);
         }
+
+        [Fact]
+        public void ExtratoConta_SaldoGeral()
+        {
+            // Arrange
+            var conta = new ContaBancaria("Conta Extrato");
+
+            conta.Depositar(350m);
+            conta.Sacar(100m);
+
+            // Act
+            var saldoGeral = conta.Saldo;
+
+            // Assert
+            Assert.Equal(250m, saldoGeral);
+        }
     }
 }
