@@ -22,28 +22,40 @@ namespace Finance.Api.Controllers
         public IActionResult Entrada(int id, decimal valor)
         {
             _contas[id].Entrada(valor);
-            return Ok(_contas[id].Saldo);
+            return Ok($"Entrada de R${_contas[id].Saldo} na conta {_contas[id].NomeContaMovimento}.");
         }
 
         [HttpPost("{id}/saida")]
-        public IActionResult Sacar(int id, decimal valor)
+        public IActionResult Saida(int id, decimal valor)
         {
             _contas[id].Saida(valor);
-            return Ok(_contas[id].Saldo);
+            return Ok($"Saída de R${valor} da conta {_contas[id].NomeContaMovimento}.");
         }
 
         [HttpPost("{id}/transferir/{destinoId}")]
         public IActionResult Transferir(int id, int destinoId, decimal valor)
         {
             _contas[id].Transferir(_contas[destinoId], valor);
-            return Ok(new { SaldoOrigem = _contas[id].Saldo, SaldoDestino = _contas[destinoId] });
+            return Ok(new
+            {
+                Origem = new
+                {
+                    SaldoOrigem = _contas[id].Saldo,
+                    UltimoHistorico = _contas[id].Historico.Last()
+                },
+                Destino = new
+                {
+                    SaldoDestino = _contas[destinoId].Saldo,
+                    UltimoHistorico = _contas[id].Historico.Last()
+                }
+            });
         }
 
         [HttpGet("{id}/saldo")]
         public IActionResult Saldo(int id)
         {
             var saldo = _contas[id].Saldo;
-            return Ok(saldo);
+            return Ok($"O sado da conta {_contas[id].NomeContaMovimento} é de R${saldo}.");
         }
     }
 }
