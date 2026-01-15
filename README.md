@@ -5,7 +5,10 @@ básicas para criar contas de movimento e fazer o seu
 gerenciamento através dos métodos de entrada, saída e tranferência de 
 valor entre as contas. 
 
-Todos os movimentos são registrado em histórico, que futuramente
+Com a adoção do Entity Framework Core as tabelas são registradas no 
+banco de dados do MySQL.
+
+Além disso, as movimentos são registrado em histórico, que futuramente
 nos ajudará na criação dos extratos, funcionalidade até então ainda não
 desenvolvida.
 
@@ -17,12 +20,16 @@ desenvolvida.
 - [x] Transferir valores entre contas
 - [x] Salvar histórico de transações
 - [x] Gerar saldo atual da conta
+- [x] Inclusão de MySql com Entity Framework
  
 
 ## Tecnologias Utilizadas
 
 - C# .NET 8
-- XUnit para testes unitários
+- ASP.NET Core Web API
+- Entity Framework
+- MySQL
+- XUnit
 
 ## Contato
 
