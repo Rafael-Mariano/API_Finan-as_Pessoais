@@ -1,3 +1,6 @@
+using Finance.Api.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +9,15 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add DbContext
+builder.Services.AddDbContext<DbContext_>(options =>
+{
+options.UseMySql(
+        "informações_banco_de_dados",
+        new MySqlServerVersion(new Version(8, 0, 3))
+        );
+});
 
 var app = builder.Build();
 

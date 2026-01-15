@@ -4,9 +4,12 @@ namespace Finance.Api.Domain
 {
     public class ContaMovimento
     {
-        public string NomeContaMovimento { get; }
-        public decimal Saldo { get; private set; }
-        public List<Transacao> Historico { get; } = new List<Transacao>();
+        public int Id { get; set; }
+        public string NomeContaMovimento { get; set; }
+        public decimal Saldo { get; set; }
+        public List<Transacao> Historico { get; set; } = new List<Transacao>();
+
+        public ContaMovimento() { }
 
         public ContaMovimento(string nomeConta)
         {
@@ -18,7 +21,7 @@ namespace Finance.Api.Domain
         {
             Saldo += valor;
 
-            Historico.Add(new Transacao("Entrada de: " + valor, valor, DateTime.Now));
+            Historico.Add(new Transacao("Entrada", valor, DateTime.Now));
         }
 
         public void Saida(decimal valor)
@@ -30,7 +33,7 @@ namespace Finance.Api.Domain
 
             Saldo -= valor;
 
-            Historico.Add(new Transacao("Saída de R$" + valor, valor, DateTime.Now));
+            Historico.Add(new Transacao("Saída", valor, DateTime.Now));
         }
 
         public void Transferir(ContaMovimento contaDestino, decimal valor)
@@ -43,13 +46,13 @@ namespace Finance.Api.Domain
             contaDestino.Saldo += valor;
 
             Historico.Add(new Transacao(
-                $"Transferência de R${valor} enviada para {contaDestino.NomeContaMovimento}.",
+                "Transferência enviada",
                 valor,
                 DateTime.Now
             ));
 
             contaDestino.Historico.Add(new Transacao(
-                $"Transferência de R${valor} recebida de {NomeContaMovimento}", 
+                "Transferência recebida", 
                 valor, 
                 DateTime.Now
             ));

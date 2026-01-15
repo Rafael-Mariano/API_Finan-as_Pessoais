@@ -1,5 +1,9 @@
-﻿using Finance.Api.Domain;
+﻿using Finance.Api.Data;
+using Finance.Api.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Finance.Api.Controllers
 {
@@ -7,55 +11,92 @@ namespace Finance.Api.Controllers
     [Route("api/[controller]")]
     public class ContaMovimentoController : ControllerBase
     {
-        private static readonly Dictionary<int, ContaMovimento> _contas = new();
-        private static int _id = 1;
+        private readonly DbContext_ _context;
+        public ContaMovimentoController(DbContext_ context) 
+        {
+            _context = context;
+        }
 
         [HttpPost]
-        public IActionResult CriarConta(string nomeConta)
+        public async Task<IActionResult> CriarConta(string nomeConta)
         {
+            // Criar conta
             var conta = new ContaMovimento(nomeConta);
-            _contas[_id] = conta;
-            return Ok(new { Id = _id++, conta.NomeContaMovimento, conta.Saldo });
+
+            // Sinaliza a entrada de uma nova conta
+            _context.contaMovimentoTbl.Add(conta);
+
+            // Salva as informações no banco de dados
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Id = conta.Id, conta.NomeContaMovimento, conta.Saldo });
         }
 
         [HttpPost("{id}/entrada")]
-        public IActionResult Entrada(int id, decimal valor)
+        public async Task<IActionResult> Entrada(int id, decimal valor)
         {
-            _contas[id].Entrada(valor);
-            return Ok($"Entrada de R${_contas[id].Saldo} na conta {_contas[id].NomeContaMovimento}.");
+            // Buscar informação do Id
+            var conta = await _context.contaMovimentoTbl
+                .FirstOrDefaultAsync(conta => conta.Id == id);
+
+            // Registrar a entrada do valor
+            conta.Entrada(valor);
+
+            // Salvar no banco de dados
+            await _context.SaveChangesAsync();
+
+            return Ok($"Entrada de R${valor.ToString("F2")} na conta {conta.NomeContaMovimento}.");
         }
 
         [HttpPost("{id}/saida")]
-        public IActionResult Saida(int id, decimal valor)
+        public async Task<IActionResult> Saida(int id, decimal valor)
         {
-            _contas[id].Saida(valor);
-            return Ok($"Saída de R${valor} da conta {_contas[id].NomeContaMovimento}.");
+            var conta = await _context.contaMovimentoTbl
+                .FirstOrDefaultAsync(conta => conta.Id == id);
+
+            conta.Saida(valor);
+
+            await _context.SaveChangesAsync();
+
+            return Ok($"Saída de R${valor.ToString("F2")} da conta {conta.NomeContaMovimento}.");
         }
 
         [HttpPost("{id}/transferir/{destinoId}")]
-        public IActionResult Transferir(int id, int destinoId, decimal valor)
+        public async Task<IActionResult> Transferir(int id, int destinoId, decimal valor)
         {
-            _contas[id].Transferir(_contas[destinoId], valor);
+            var origem = await _context.contaMovimentoTbl
+                .FirstOrDefaultAsync(conta => conta.Id == id);
+
+            var destino = await _context.contaMovimentoTbl
+                .FirstOrDefaultAsync(conta => conta.Id == destinoId);
+
+            origem.Transferir(destino, valor);
+
+            await _context.SaveChangesAsync();
+
             return Ok(new
             {
                 Origem = new
                 {
-                    SaldoOrigem = _contas[id].Saldo,
-                    UltimoHistorico = _contas[id].Historico.Last()
+                    SaldoOrigem = origem.Saldo,
+                    UltimoHistorico = origem.Historico.Last()
                 },
                 Destino = new
                 {
-                    SaldoDestino = _contas[destinoId].Saldo,
-                    UltimoHistorico = _contas[id].Historico.Last()
+                    SaldoDestino = destino.Saldo,
+                    UltimoHistorico = destino.Historico.Last()
                 }
             });
         }
 
         [HttpGet("{id}/saldo")]
-        public IActionResult Saldo(int id)
+        public async Task<IActionResult> Saldo(int id)
         {
-            var saldo = _contas[id].Saldo;
-            return Ok($"O sado da conta {_contas[id].NomeContaMovimento} é de R${saldo}.");
+
+            var conta = await _context.contaMovimentoTbl
+                .FirstOrDefaultAsync(conta => conta.Id == id);
+
+            return Ok($"O sado da conta {conta.Id} é de R${conta.Saldo}.");
         }
     }
 }
