@@ -59,3 +59,4 @@ nunit-*.xml
 # Outros Arquivos
 *.pdf
 Migrations/
+appsettings.Local.json
